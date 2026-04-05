@@ -1,0 +1,8 @@
+{
+  "[cpp]": {
+    "editor.formatOnSave": false,
+    "editor.autoIndent": "none"
+  },
+  "C_Cpp.errorSquiggles": "disabled",
+  "C_Cpp.intelliSenseEngine": "disabled"
+}

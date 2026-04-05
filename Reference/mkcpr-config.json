@@ -1,0 +1,8 @@
+{
+  "code_folder": "./CodeFolder", 
+  "template_path": "./Template.tex", 
+  "output_file_path": "./Output.tex",
+  "excluded": ["__pycache__", ".vscode"], 
+  "columns": 2, 
+  "template_placeholder": "CODE HERE"
+}

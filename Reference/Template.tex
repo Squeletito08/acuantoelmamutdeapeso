@@ -1,0 +1,99 @@
+% run the command ' lualatex -shell-escape Reference.tex ' twice in the terminal to visualize table of contents
+\documentclass[twoside]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{multicol}
+\usepackage{minted}
+\usepackage{python}
+\usepackage{fontspec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{pdfpages}
+\usepackage{needspace}
+\usepackage{sectsty}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{afterpage}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{svg}
+\usepackage[inline]{enumitem}
+
+\graphicspath{ {./media/} }
+
+\definecolor{prussianblue}{rgb}{0.0, 0.19, 0.33}
+\definecolor{indigo(dye)}{rgb}{0.0, 0.25, 0.42}
+\definecolor{lapislazuli}{rgb}{0.15, 0.38, 0.61}
+\definecolor{mediumelectricblue}{rgb}{0.01, 0.31, 0.59}
+\definecolor{smalt(darkpowderblue)}{rgb}{0.0, 0.2, 0.6}
+\definecolor{yaleblue}{rgb}{0.06, 0.3, 0.57}
+\definecolor{skobeloff}{rgb}{0.0, 0.48, 0.45}
+\definecolor{pinegreen}{rgb}{0.0, 0.47, 0.44}
+\definecolor{coolgray}{RGB}{49, 63, 71}
+\definecolor{coolpink}{RGB}{255,116,150}
+
+\setmainfont[
+    Path=fonts/,
+    UprightFont = nexalight.otf,
+    BoldFont = nexabold.otf
+]{nexalight}
+
+\setsansfont[
+    Path=fonts/,
+    UprightFont = nexalight.otf,
+    BoldFont = nexabold.otf
+]{nexalight}
+
+
+\geometry{letterpaper, landscape, left=0.5cm, right=0.5cm, top=1.8cm, bottom=1cm}
+
+\sectionfont{\Huge\bfseries\sffamily}
+
+\setminted{
+    style=manni,
+    breaklines=true,
+    breakanywhere=true,
+    tabsize=4
+}
+
+\setlength{\color{lapislazuli}\headsep}{0.5cm}
+\setlength{\columnsep}{0.5cm}
+\setlength{\columnseprule}{0.1cm}
+\renewcommand{\columnseprulecolor}{\color{lapislazuli}}
+
+
+\pagenumbering{arabic}
+\fancyhead{}
+\fancyfoot{}
+\fancyhead[LO,RE]{\textcolor{coolgray}{acuantoelmamutdeapeso}}
+\fancyhead[LE,RO]{\textcolor{coolgray}{\leftmark}}
+\fancyfoot[LE,RO]{\textcolor{coolgray}{\textbf{\thepage}}}
+
+\renewcommand{\headrulewidth}{0.05cm}
+\renewcommand{\footrulewidth}{0.01cm}
+\newcommand\YUGE{\fontsize{35}{50}\selectfont}
+
+\setlength{\parindent}{0em}
+% column space
+\setlength{\tabcolsep}{10pt} % Default value: 6pt
+% upper and lower padding
+\renewcommand{\arraystretch}{1.5} % Default value: 1
+
+\begin{document}
+\pagestyle{fancy}
+\newpage
+
+\selectfont
+\color{coolgray}
+\begin{multicols*}{2}
+	\tableofcontents
+\end{multicols*}
+
+
+CODE HERE
+\end{document}
