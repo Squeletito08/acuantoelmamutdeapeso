@@ -1,0 +1,13 @@
+*.aux
+*.log
+*.gz
+*.toc
+*.out
+*.nav
+*.snm
+*.vrb
+
+*.fdb_latexmk
+*.fls
+
+_minted-Output/
