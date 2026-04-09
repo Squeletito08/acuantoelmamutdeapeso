@@ -1,25 +1,18 @@
-
-vector<ll> trial_division(ll n) {
-  vector<ll> factorization;
-  for (int d : {2, 3, 5}) {
-    while (n % d == 0) {
-      factorization.push_back(d);
-      n /= d;
+map<long long, int> primeFactorize(long long n) {
+  map<long long, int> factors;
+  while (n % 2 == 0) {
+    factors[2]++;
+    n /= 2;
+  }
+  for (long long i = 3; i * i <= n; i += 2) {
+    while (n % i == 0) {
+      factors[i]++;
+      n /= i;
     }
   }
-  static array<int, 8> increments = {4, 2, 4, 2, 4, 6, 2, 6};
-  int i = 0;
-  for (ll d = 7; d * d <= n; d += increments[i++]) {
-    while (n % d == 0) {
-      factorization.push_back(d);
-      n /= d;
-    }
-    if (i == 8)
-      i = 0;
+  // Si sigue siendo más grande que 1, es primo
+  if (n > 1) {
+    factors[n]++;
   }
-  if (n > 1)
-    factorization.push_back(n);
-
-  // Si factorization.size() == 1 entonces n es primo
-  return factorization;
+  return factors;
 }

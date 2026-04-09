@@ -1,0 +1,18 @@
+\subsection*{Euler's Totient Function $\phi(n)$}
+Counts the integers $1 \le k \le n$ such that $\gcd(k, n) = 1$.
+\begin{itemize}
+	\item If $p$ is prime: $\phi(p) = p-1$.
+	\item If $n = p_1^{a_1} p_2^{a_2} \dots$: $\phi(n) = n \prod \left(1 - \frac{1}{p_i}\right)$.
+\end{itemize}
+
+\subsection*{Euler's Theorem}
+If $\gcd(a, n) = 1$, then:
+\begin{equation*}
+	a^{\phi(n)} \equiv 1 \pmod n \implies a^E \equiv a^{E \pmod{\phi(n)}} \pmod n
+\end{equation*}
+
+\subsection*{Fermat's Little Theorem}
+If $p$ is prime and $a$ is not a multiple of $p$:
+\begin{equation*}
+	a^{p-1} \equiv 1 \pmod p \implies a^p \equiv a \pmod p
+\end{equation*}
