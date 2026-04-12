@@ -1,4 +1,3 @@
-
 // Uso: Matrix<T> M = matPow<T>(A, n - 1);
 template <typename T>
 Matrix<T> matPow(Matrix<T> &base, ll p)
