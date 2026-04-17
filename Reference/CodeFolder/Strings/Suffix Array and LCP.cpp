@@ -1,124 +1,154 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+using vi = vector<int>;
+
 /*
-Suffix array (SA):
-Let s be a string of length n.The i-th suffix of s is the substring
-s[i...n - 1].
-A suffix array will contain integers that represent the starting indexes of the all the suffixes of a given string, after the aforementioned suffixes are sorted.
+Suffix Array (SA):
+Sea s una cadena de longitud n. El i-ésimo sufijo de s es la subcadena
+s[i...n-1]. El Suffix Array contiene los índices de inicio de todos los
+sufijos de la cadena, ordenados lexicográficamente.
 
-Note:  The order of the sorted cyclic shifts is equivalent to the order of the sorted suffixes
-
-LCP (Longest Common Prefix) array:
-A value lcp[SA[i]] indicates length of the longest common prefix of the suffixes indexed in SA[i] and SA[i+1]. 
+LCP (Longest Common Prefix) Array:
+El valor lcp[i] indica la longitud del prefijo común más largo entre el
+sufijo en la posición i y el sufijo en la posición i-1 del Suffix Array
+(SA).
 
 txt[0..n-1] = "b a n a n a $"
                0 1 2 3 4 5 6
 
-suffix[]  = {6,    5,   3,     1,       0,        4,    2}
-          = {"$", "a", "ana", "anana", "banana", "na", "nana"}
-            ---------------------------------------------------
-             0     1    2      3        4         5     6
+SA[]  = {6,    5,   3,     1,       0,        4,    2}
+      = {"$", "a", "ana", "anana", "banana", "na", "nana"}
+        ---------------------------------------------------
+índice: 0     1    2      3        4          5      6
 
-for (int i = 1; i < n; i++)
-    cout << LCP[SA[i]] << " "; 
-lcp        = {0, 1, 3, 0, 0, 2, 0}
-lcp[SA[0]] = LCP of "$" and "a"          = 0
-lcp[SA[1]] = LCP of "a" and "ana"        = 1
-lcp[SA[2]] = LCP of "ana" and "anana"    = 3
-lcp[SA[3]] = LCP of "anana" and "banana" = 0
-lcp[SA[4]] = LCP of "banana" and "na"    = 0
-lcp[SA[5]] = LCP of "na" and "nana"      = 2
+LCP[] = {0,    0,   1,     3,       0,        0,    2}
+lcp[0] = 0 (no hay sufijo anterior)
+lcp[1] = LCP de "$" y "a"          = 0
+lcp[2] = LCP de "a" y "ana"        = 1
+lcp[3] = LCP de "ana" y "anana"    = 3
+lcp[4] = LCP de "anana" y "banana" = 0
+lcp[5] = LCP de "banana" y "na"    = 0
+lcp[6] = LCP de "na" y "nana"      = 2
 */
 
-void countingSort(vi &SA, vi &eq)
-{
-  vi count(sz(eq));
+struct SuffixArray {
+  vi sa, lcp, rank;
+  vi log;
+  vector<vi> sp;
+  int n;
 
-  for (int i = 0; i < sz(eq); i++)
-    count[eq[i]]++;
+  const int ALPHABET = 256;
 
-  for (int i = 1; i < sz(eq); i++)
-    count[i] += count[i - 1];
+  void construct_sparse(int n) {
+    log.resize(n + 1);
 
-  vi out(sz(eq));
-
-  for (int i = sz(eq) - 1; i >= 0; i--)
-  {
-    int val = eq[SA[i]];
-    out[count[val] - 1] = SA[i];
-    count[val]--;
-  }
-  SA = out;
-}
-
-pair<vi, vi> Suffix_Array_and_LCP(const string &s)
-{
-  int n = sz(s);
-  vector<pair<char, int>> aux(n);
-
-  for (int i = 0; i < n; i++)
-    aux[i] = {s[i], i};
-
-  sort(all(aux));
-
-  vi SA(n);
-
-  for (int i = 0; i < n; i++)
-    SA[i] = aux[i].second;
-
-  vi eq(n);
-
-  eq[SA[0]] = 0;
-  for (int i = 1; i < n; i++)
-    eq[SA[i]] = (aux[i - 1].first != aux[i].first) ? eq[SA[i - 1]] + 1 : eq[SA[i - 1]];
-
-  for (int h = 0; (1 << h) < n; h++)
-  {
-    int k = 1 << h;
-
-    for (int i = 0; i < n; i++)
-      SA[i] = (SA[i] - k + n) % n;
-
-    countingSort(SA, eq);
-
-    vi aux(n);
-    aux[SA[0]] = 0;
-    for (int i = 1; i < n; i++)
-    {
-      pair<int, int> ant = {eq[SA[i - 1]],
-                            eq[(SA[i - 1] + k) % n]};
-      pair<int, int> act = {eq[SA[i]], eq[(SA[i] + k) % n]};
-      aux[SA[i]] = (ant != act) ? aux[SA[i - 1]] + 1 : aux[SA[i - 1]];
+    log[1] = 0;
+    for (int i = 2; i <= n; i++) {
+      log[i] = log[i / 2] + 1;
     }
 
-    eq = aux;
+    sp.resize(log[n] + 1, vector<int>(n + 1, 0));
+
+    sp[0] = lcp;
+
+    int k = log[n];
+    for (int i = 1; i <= k; i++) {
+      for (int j = 0; j + (1 << i) - 1 < n; j++) {
+        sp[i][j] = min(sp[i - 1][j], sp[i - 1][j + (1 << (i - 1))]);
+      }
+    }
   }
 
-  vi LCP(n);
-
-  int k = 0;
-  for (int i = 0; i < n - 1; i++)
-  {
-    int j = SA[eq[i] - 1];
-
-    while (s[i + k] == s[j + k])
-      k++;
-
-    LCP[i] = k;
-
-    k = max(k - 1, 0);
+  int query_lcp(int i, int j) {
+    if (i == j) {
+      return n - sa[i] - 1;
+    }
+    int l = min(i, j) + 1;
+    int r = max(i, j);
+    int k = log[r - l + 1];
+    return min(sp[k][l], sp[k][r - (1 << k) + 1]);
   }
 
-  return {SA, LCP};
-}
+  SuffixArray(string s) {
+    s += '$'; // Debe ser el menor caracter lexicográficamente
+    n = s.size();
+    sa.resize(n);
+    rank.resize(n);
+    vi cnt(max(ALPHABET, n), 0);
 
-int main()
-{
-  ios::sync_with_stdio(0);
-  cin.tie(nullptr);
-  string s;
-  cin >> s;
-  s += "$";
-  pair<vi, vi> result = Suffix_Array_and_LCP(s);
-  vi SA = result.first;
-  vi LCP = result.second;
-  return 0;
-}
+    // --- Fase Inicial (k = 0): Ordenar por el primer carácter ---
+    for (int i = 0; i < n; i++)
+      cnt[s[i]]++;
+    for (int i = 1; i < ALPHABET; i++)
+      cnt[i] += cnt[i - 1];
+    for (int i = 0; i < n; i++)
+      sa[--cnt[s[i]]] = i;
+
+    int cls = 1; // Número de clases de equivalencia (grupos de sufijos iguales)
+    rank[sa[0]] = 0;
+    for (int i = 1; i < n; i++) {
+      if (s[sa[i]] != s[sa[i - 1]])
+        cls++;
+      rank[sa[i]] = cls - 1;
+    }
+
+    // --- Prefix Doubling: Ordenar por prefijos de longitud 2^h ---
+    vi next_sa(n), next_rank(n);
+    for (int h = 0; (1 << h) < n; h++) {
+      int k = (1 << h);
+
+      // Ordenar por la segunda mitad (shift a la izquierda por k)
+      // Esto ya nos da un ordenamiento parcial basado en s[i+k...i+2k-1]
+      for (int i = 0; i < n; i++)
+        next_sa[i] = (sa[i] - k + n) % n;
+
+      // Counting Sort: Ordenar por la primera mitad usando los ranks actuales
+      fill(cnt.begin(), cnt.begin() + cls, 0);
+      for (int i = 0; i < n; i++)
+        cnt[rank[next_sa[i]]]++;
+      for (int i = 1; i < cls; i++)
+        cnt[i] += cnt[i - 1];
+      for (int i = n - 1; i >= 0; i--)
+        sa[--cnt[rank[next_sa[i]]]] = next_sa[i];
+
+      // Generar nuevos ranks comparando pares (rank_izq, rank_der)
+      next_rank[sa[0]] = 0;
+      cls = 1;
+      for (int i = 1; i < n; i++) {
+        pair<int, int> cur = {rank[sa[i]], rank[(sa[i] + k) % n]};
+        pair<int, int> prev = {rank[sa[i - 1]], rank[(sa[i - 1] + k) % n]};
+        if (cur != prev)
+          cls++;
+        next_rank[sa[i]] = cls - 1;
+      }
+      rank = next_rank;
+      if (cls == n)
+        break; // Todos los sufijos ya tienen una posición única
+    }
+    buildLCP(s);
+    construct_sparse(n);
+  }
+
+  // Kasai: Calcula LCP aprovechando que LCP(i, j) >= LCP(i-1, j') - 1
+  void buildLCP(const string &s) {
+    int n = s.size();
+    lcp.assign(n, 0);
+    int k = 0;
+    for (int i = 0; i < n; i++) {
+      // El sufijo en la posición rank[i] se compara con el anterior en el SA
+      if (rank[i] == 0) {
+        k = 0;
+        continue;
+      }
+      int j = sa[rank[i] - 1];
+      // Expandir mientras los caracteres coincidan
+      while (i + k < n && j + k < n && s[i + k] == s[j + k])
+        k++;
+      lcp[rank[i]] = k;
+
+      // En la siguiente iteración (sufijo i+1), el LCP será al menos k-1
+      k = max(k - 1, 0);
+    }
+  }
+};

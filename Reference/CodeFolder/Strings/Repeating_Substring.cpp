@@ -1,25 +1,28 @@
 /*
-A repeating substring is a substring that occurs in two (or more) locations in the string. Your task is to find the longest repeating substring in a given string.
+Encuentra la subcadena repetida más larga.
+Si hay empate, devuelve la primera que aparece en orden lexicográfico.
 */
-string Repeating_Substring()
-{
+string Repeating_Substring() {
   string s;
   cin >> s;
-  s += "$";
-  pair<vi, vi> result = Suffix_Array_and_LCP(s);
-  vi SA = result.first;
-  vi LCP = result.second;
 
-  int ans = 0;
-  for (int i = 0; i < s.size(); i++)
-    ans = max(ans, LCP[SA[i]]);
+  SuffixArray sa_obj(s);
 
-  if (ans == 0)
-    return ""; 
+  int max_len = 0;
+  int pos_in_sa = -1;
 
-  for (int i = 0; i < s.size(); i++)
-    if (ans == LCP[SA[i]])
-      return s.substr(SA[i], LCP[SA[i]]);
-    
-  return "";
+  // El arreglo LCP tiene n elementos. lcp[i] es el prefijo común
+  // entre sa[i] y sa[i-1].
+  for (int i = 1; i < sa_obj.n; i++) {
+    if (sa_obj.lcp[i] > max_len) {
+      max_len = sa_obj.lcp[i];
+      pos_in_sa = i;
+    }
+  }
+
+  if (max_len == 0)
+    return "";
+
+  // Usamos sa[pos_in_sa] para obtener el índice original en el string
+  return s.substr(sa_obj.sa[pos_in_sa], max_len);
 }

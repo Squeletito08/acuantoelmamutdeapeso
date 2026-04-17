@@ -1,38 +1,40 @@
-
-// Nos dice si i pertenece a la string a y j a la string b o viceversa
-bool distintos(int n1, int n, int i, int j)
-{
-  return (i >= 0 && i < n1 && j >= n1 + 1 && j < n) || (j >= 0 && j < n1 && i >= n1 + 1 && i < n);
-}
-
-string LCS()
-{
-  string a;
-  cin >> a;
+string LCS() {
+  string a, b;
+  cin >> a >> b;
   int n1 = a.size();
 
-  string b;
-  cin >> b;
-  int n2 = b.size();
-
+  // a = "banana", b = "anana" -> "banana$anana#"
   string s = a + "$" + b + "#";
+  SuffixArray sa_obj(s);
 
-  pair<vi, vi> result = Suffix_Array_and_LCP(s);
-  vi SA = result.first;
-  vi LCP = result.second;
+  int max_len = 0;
+  int start_pos = 0;
+  int total_n = s.size();
 
-  int res = 0;
-  int maximo = INT_MIN;
-  for (int i = 1; i < s.size(); i++)
-  {
-    if (distintos(n1, s.size(), SA[i], SA[i - 1]))
-    {
-      if (LCP[SA[i]] > maximo)
-      {
-        maximo = LCP[SA[i]];
-        res = SA[i];
+  // Recorremos el Suffix Array buscando sufijos adyacentes
+  // que pertenezcan a strings distintas
+  for (int i = 1; i < total_n; i++) {
+    int pos1 = sa_obj.sa[i];
+    int pos2 = sa_obj.sa[i - 1];
+
+    // Verificamos si uno pertenece a 'a' y el otro a 'b'
+    // 'a' está en el rango [0, n1-1]
+    // '$' está en n1
+    // 'b' está en el rango [n1+1, total_n-2]
+    bool belongs_a_1 = (pos1 < n1);
+    bool belongs_a_2 = (pos2 < n1);
+
+    bool belongs_b_1 = (pos1 > n1 && pos1 < total_n - 1);
+    bool belongs_b_2 = (pos2 > n1 && pos2 < total_n - 1);
+
+    if ((belongs_a_1 && belongs_b_2) || (belongs_a_2 && belongs_b_1)) {
+      // El LCP entre SA[i] y SA[i-1] es sa_obj.lcp[i]
+      if (sa_obj.lcp[i] > max_len) {
+        max_len = sa_obj.lcp[i];
+        start_pos = pos1;
       }
     }
   }
-  return s.substr(res, LCP[res]); 
+
+  return s.substr(start_pos, max_len);
 }

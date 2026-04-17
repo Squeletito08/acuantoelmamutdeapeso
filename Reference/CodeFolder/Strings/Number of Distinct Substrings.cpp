@@ -1,19 +1,16 @@
-ll Distinct_Substrings()
-{
+ll Distinct_Substrings() {
   string s;
   cin >> s;
-  s += "$";
 
-  pair<vi, vi> result = Suffix_Array_and_LCP(s);
-  vi SA = result.first;
-  vi LCP = result.second;
+  SuffixArray sa_obj(s);
 
-  ll sum = 0;
-  ll n = s.size() - 1; // Para no contar al '$' agregado
+  int n = s.size();
+  ll total_substrings = (1LL * n * (n + 1)) / 2;
 
-  for (int i = 0; i < n; i++)
-    sum += LCP[i];
+  ll lcp_sum = 0;
+  for (int i = 0; i < sa_obj.lcp.size(); i++) {
+    lcp_sum += sa_obj.lcp[i];
+  }
 
-  ll number_of_substrings = (n * (n + 1)) / 2;
-  return number_of_substrings - sum; 
+  return total_substrings - lcp_sum;
 }
